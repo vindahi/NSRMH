@@ -22,7 +22,7 @@ def add_noise_to_labels(labels, noise_rate):
 
 def generate_noise_F(noise):
     noise_rate = noise
-    data = sio.loadmat('/home/user3/zrfan/ACMMM2025/multinosily/data/mir_clip_all.mat')
+    data = sio.loadmat('/mir_clip_all.mat')
     for i in noise_rate:
         labels_matrix = np.array(list(data['L_tr']))
         labels_matrix2 = np.array(list(data['L_tr']))
@@ -37,7 +37,7 @@ def generate_noise_F(noise):
 
 def generate_noise_N(noise):
     noise_rate = noise
-    data = sio.loadmat('/home/user3/zrfan/ACMMM2025/multinosily/data/nus_clip_all.mat')
+    data = sio.loadmat('/nus_clip_all.mat')
     for i in noise_rate:
         labels_matrix = np.array(list(data['L_tr']))
         labels_matrix2 = np.array(list(data['L_tr']))
@@ -50,7 +50,7 @@ def generate_noise_N(noise):
 
 def generate_noise_M(noise):
     noise_rate = noise
-    data = sio.loadmat('/home/user3/zrfan/ACMMM2025/multinosily/data/coco_clip_all.mat')
+    data = sio.loadmat('/coco_clip_all.mat')
     for i in noise_rate:
         labels_matrix = np.array(list(data['L_tr']))
         labels_matrix2 = np.array(list(data['L_tr']))
@@ -62,17 +62,6 @@ def generate_noise_M(noise):
         output_file.close()
 
 
-def generate_noise_W(noise):
-    noise_rate = noise
-    data = sio.loadmat('../../Data/wiki_data_all.mat')
-    for i in noise_rate:
-        labels_matrix = np.array(list(data['L_tr']))
-        labels_matrix2 = np.array(list(data['L_tr']))
-        noisy_labels_matrix = add_noise_to_labels(labels_matrix, i)
-        output_file = h5py.File('wiki-lall-noise_{}.h5'.format(i), 'w')
-        output_file.create_dataset('result', data=noisy_labels_matrix)
-        output_file.create_dataset('True', data=labels_matrix2)
-        output_file.close()
 
 
     
@@ -82,4 +71,3 @@ if __name__ == "__main__":
     generate_noise_F(noise_rate)
     generate_noise_N(noise_rate)
     generate_noise_M(noise_rate)
-    # generate_noise_W(noise_rate)
