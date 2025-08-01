@@ -71,11 +71,10 @@ def train(args, bit):
     
     fusionnet = FusionNwt(args).to(device)
 
-    # 初始化权重 W
-    W = torch.empty(args.classes, bit).to(device)  # 直接在CUDA上创建
+    W = torch.empty(args.classes, bit).to(device)  
     W = torch.nn.init.orthogonal_(W, gain=1)
-    W = torch.nn.Parameter(W, requires_grad=True)  # 设置为可训练参数
-    fusionnet.register_parameter('W', W)  # 注册 W 到图像网络
+    W = torch.nn.Parameter(W, requires_grad=True)
+    fusionnet.register_parameter('W', W) 
     
     fusionnet.train()
 
@@ -174,7 +173,6 @@ def train(args, bit):
 
                 code, predcode = fusionnet(image, tag)
 
-                recon_loss = loss_l2(torch.sigmoid(predcode), label.float())
 
                 H_norm = F.normalize(code)
                 similarity_loss = loss_l2(H_norm.mm(H_norm.t()), aff_label)
@@ -184,7 +182,6 @@ def train(args, bit):
 
                 code_center = code.mm(center.t())
                 label = label.to(torch.float)  # 将 label 转换为 Float 类型
-                constr_loss = bce_loss(code_center, label)
 
 
                 similarity_loss = loss_l2(H_norm.mm(H_norm.t()), aff_label)
@@ -193,8 +190,8 @@ def train(args, bit):
 
                 losssign = loss_l2(code, torch.sign(code))
 
-                loss = similarity_loss  * args.param_sim + recon_loss + code_cen_loss * args.param_it + constr_loss * args.param_sup + losssign * args.param_sign
-                train_loss += loss.item()  # 使用 item() 获取标量值
+                loss = similarity_loss  * args.param_sim + code_cen_loss * args.param_it  + losssign * args.param_sign
+                train_loss += loss.item() 
                 loss.backward()
                 optimizer.step()
         
@@ -204,19 +201,6 @@ def train(args, bit):
                 epoch + 1, bit, args.dataset, args.noise_rate, train_loss, bestmap))
     
     return fusionnet
-
-
-
-def eval(moodel, args):
-    moodel.eval()
-    device = torch.device("cuda:0")
-    train_loader, test_loader, dataset_loader = get_data(args)
-    re_B, re_L = computemultimodal_result(dataset_loader, moodel, device=device)
-    qu_B, qu_L = computemultimodal_result(test_loader, moodel, device=device)
-    MAP50 = calculate_top_map(qu_B=qu_B.numpy(), re_B=re_B.numpy(), qu_L=qu_L.numpy(), re_L=re_L.numpy(), topk=50)
-    print('MAP50:', MAP50)
-
-    return 0
 
     
 
